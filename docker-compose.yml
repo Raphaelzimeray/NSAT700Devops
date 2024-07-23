@@ -1,0 +1,89 @@
+version: '3.8'
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: always
+    ports:
+      - "81:81"
+      - "444:443"
+      - "22:22"
+    volumes:
+      - gitlab_config:/etc/gitlab
+      - gitlab_logs:/var/log/gitlab
+      - gitlab_data:/var/opt/gitlab
+    environment:
+      GITLAB_ROOT_PASSWORD: "Password_123!"
+      EXTERNAL_URL: "http://gitlab:81/"
+      GITLAB_OMNIBUS_CONFIG: "external_url 'http://10.5.0.5:81/'"
+    networks:
+      network:
+        ipv4_address: 10.5.0.5
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: always
+    volumes:
+      - ./gitlab-runner/config.toml:/etc/gitlab-runner/config.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    networks:
+      network:
+        ipv4_address: 10.5.0.6
+
+  back:
+    image: nickos0695/nsa-back
+    container_name: back
+    restart: always
+    command: tail -f /dev/null
+    ports:
+      - "8080:80"
+    networks:
+      network:
+        ipv4_address: 10.5.0.7
+
+  nsa-db:
+    image: nickos0695/nsa-db
+    container_name: db
+    restart: always
+    command: tail -f /dev/null
+    networks:
+      network:
+        ipv4_address: 10.5.0.8
+
+  front:
+    image: nickos0695/nsa-front
+    container_name: front
+    restart: always
+    command: tail -f /dev/null
+    ports:
+      - "4200:80"
+    networks:
+      network:
+        ipv4_address: 10.5.0.9
+
+#   nexus:
+#     image: sonatype/nexus3
+#     restart: always
+#     volumes:
+#       - "nexus-data:/sonatype-work"
+#     ports:
+#       - "8081:8081"
+#       - "8085:8085"
+
+volumes:
+  gitlab_config:
+  gitlab_logs:
+  gitlab_data:
+  gitlab_runner_config:
+  #nexus-data: {}
+
+
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1

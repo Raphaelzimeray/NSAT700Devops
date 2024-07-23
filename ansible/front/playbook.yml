@@ -1,0 +1,44 @@
+- name: Déployer l'application depuis un artefact GitLab
+  hosts: front
+  become: yes
+  vars:
+    gitlab_url: "http://localhost:81/root/front/-/artifacts/download"
+    dest_dir: "/var/www/myapp"
+    artifact_name: "back.zip"
+
+  tasks:
+    - name: Installer les dépendances nécessaires
+      apt:
+        name:
+          - curl
+          - tar
+        state: present
+
+    - name: Créer le répertoire de destination s'il n'existe pas
+      file:
+        path: "{{ dest_dir }}"
+        state: directory
+
+    - name: Télécharger l'artefact depuis GitLab
+      get_url:
+        url: "{{ gitlab_url }}"
+        dest: "/tmp/{{ artifact_name }}"
+
+    - name: Extraire l'artefact
+      unarchive:
+        src: "/tmp/{{ artifact_name }}"
+        dest: "{{ dest_dir }}"
+        remote_src: yes
+
+    - name: S'assurer que les permissions sont correctes
+      file:
+        path: "{{ dest_dir }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        recurse: yes
+
+    - name: Redémarrer le service web (par exemple nginx)
+      service:
+        name: nginx
+        state: restarted

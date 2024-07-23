@@ -1,0 +1,33 @@
+concurrent = 1
+check_interval = 0
+connection_max_age = "15m0s"
+shutdown_timeout = 0
+
+[session_server]
+  session_timeout = 1800
+
+[[runners]]
+  name = "59d4d5f4d9cd"
+  url = "http://10.5.0.5:81/"
+  id = 11
+  token = "JxBzoggmxTyPRkEEurGK"
+  token_obtained_at = 2024-02-14T15:58:50Z
+  token_expires_at = 0001-01-01T00:00:00Z
+  executor = "shell"
+  [runners.cache]
+    MaxUploadedArchiveSize = 0
+
+[[runners]]
+  name = "6112f68fce05"
+  url = "http://10.5.0.5:81"
+  id = 1
+  token = "glrt-3xevUWr3KPg7y9zNHWfW"
+  token_obtained_at = 2024-07-23T09:57:55Z
+  token_expires_at = 0001-01-01T00:00:00Z
+  executor = "shell"
+  [runners.custom_build_dir]
+  [runners.cache]
+    MaxUploadedArchiveSize = 0
+    [runners.cache.s3]
+    [runners.cache.gcs]
+    [runners.cache.azure]
