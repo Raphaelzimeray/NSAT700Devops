@@ -2,7 +2,7 @@
   hosts: front
   become: yes
   vars:
-    gitlab_url: "http://localhost:81/root/front/-/artifacts/download"
+    gitlab_url: "http://localhost:81/root/FrontNSA700/-/artifacts/download"
     dest_dir: "/var/www/myapp"
     artifact_name: "back.zip"
 

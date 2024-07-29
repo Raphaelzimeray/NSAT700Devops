@@ -63,6 +63,17 @@ services:
       network:
         ipv4_address: 10.5.0.9
 
+  ansible:
+    image: nickos0695/nsa-ansible
+    container_name: ansible
+    restart: always
+    command: tail -f /dev/null
+    networks:
+      network:
+        ipv4_address: 10.5.0.10
+    volumes:
+      - ./ansible:/ansible
+
 #   nexus:
 #     image: sonatype/nexus3
 #     restart: always
