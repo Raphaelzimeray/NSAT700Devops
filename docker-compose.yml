@@ -74,22 +74,11 @@ services:
     volumes:
       - ./ansible:/ansible
 
-#   nexus:
-#     image: sonatype/nexus3
-#     restart: always
-#     volumes:
-#       - "nexus-data:/sonatype-work"
-#     ports:
-#       - "8081:8081"
-#       - "8085:8085"
-
 volumes:
   gitlab_config:
   gitlab_logs:
   gitlab_data:
   gitlab_runner_config:
-  #nexus-data: {}
-
 
 networks:
   network:

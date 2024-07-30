@@ -1,44 +1,30 @@
-- name: Déployer l'application depuis un artefact GitLab
-  hosts: back
+- name: Déploiement de la base de données MySQL
+  hosts: db
   become: yes
-  vars:
-    gitlab_url: "http://localhost:81/root/BackNSA700/-/artifacts/download"
-    dest_dir: "/var/www/myapp"
-    artifact_name: "back.zip"
 
   tasks:
-    - name: Installer les dépendances nécessaires
+    - name: Mise à jour de la liste des paquets
       apt:
-        name:
-          - curl
-          - tar
+        update_cache: yes
+
+    - name: Installation de MariaDB
+      apt:
+        name: mariadb-server
         state: present
 
-    - name: Créer le répertoire de destination s'il n'existe pas
-      file:
-        path: "{{ dest_dir }}"
-        state: directory
+    - name: Install ansible python3 mysql dependency
+      apt:
+        name: python3-mysqldb
+        state: latest
 
-    - name: Télécharger l'artefact depuis GitLab
-      get_url:
-        url: "{{ gitlab_url }}"
-        dest: "/tmp/{{ artifact_name }}"
+    - name: Configuration de MariaDB
+      template:
+        src: .my.cnf
+        dest: /etc/mysql/my.cnf
+      notify: Redémarrer MariaDB
 
-    - name: Extraire l'artefact
-      unarchive:
-        src: "/tmp/{{ artifact_name }}"
-        dest: "{{ dest_dir }}"
-        remote_src: yes
-
-    - name: S'assurer que les permissions sont correctes
-      file:
-        path: "{{ dest_dir }}"
-        state: directory
-        owner: www-data
-        group: www-data
-        recurse: yes
-
-    - name: Redémarrer le service web (par exemple nginx)
+  handlers:
+    - name: Redémarrer MariaDB
       service:
-        name: nginx
+        name: mariadb
         state: restarted

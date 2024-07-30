@@ -2,16 +2,23 @@
   hosts: back
   become: yes
   vars:
-    gitlab_url: "http://localhost:81/root/front/-/artifacts/download"
-    dest_dir: "/var/www/myapp"
+    gitlab_url: "http://10.5.0.5:81/api/v4/projects/2/jobs/artifacts/main/download?job=build_application"
+    dest_dir: "/var/www/html"
     artifact_name: "back.zip"
 
   tasks:
+    - name: Mise à jour de la liste des paquets
+      apt:
+        update_cache: yes
     - name: Installer les dépendances nécessaires
       apt:
         name:
           - curl
-          - tar
+          - unzip
+          - nginx
+          - php
+          - php-fpm
+          - php-mysql
         state: present
 
     - name: Créer le répertoire de destination s'il n'existe pas
@@ -22,7 +29,13 @@
     - name: Télécharger l'artefact depuis GitLab
       get_url:
         url: "{{ gitlab_url }}"
-        dest: "/tmp/{{ artifact_name }}"
+        dest: "/tmp/artifact.zip"
+
+    - name: Extraire l'artefact
+      unarchive:
+        src: "/tmp/artifact.zip"
+        dest: "/tmp"
+        remote_src: yes
 
     - name: Extraire l'artefact
       unarchive:
@@ -38,7 +51,15 @@
         group: www-data
         recurse: yes
 
-    - name: Redémarrer le service web (par exemple nginx)
+    - name: Redémarrage du service nginx automatiquement
+      command: systemctl enable nginx
+
+    - name: Redémarrer Nginx
       service:
         name: nginx
+        state: restarted
+
+    - name: Redémarrer php-fpm
+      service:
+        name: php8.2-fpm
         state: restarted
